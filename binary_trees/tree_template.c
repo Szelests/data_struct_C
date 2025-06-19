@@ -14,6 +14,7 @@ Node* createNode(int data)
     newNode->data = data;
     newNode->left = NULL;
     newNode->right = NULL;
+    newNode->height = 1; // Optional: Initialize height to 1 for AVL trees
 
     return newNode;
 }
@@ -148,4 +149,121 @@ Node* deleteNode(Node* root, int data) {
         root->right = deleteNode(root->right, temp->data);
     }
     return root;
+}
+
+/*
+   ============================================================
+   === INÍCIO DO COMPLEMENTO PARA ÁRVORE BINÁRIA AVL ===
+   ============================================================
+*/
+
+int height(Node* node) {
+    if (node == NULL) {
+        return 0;
+    }
+    return node->height;
+}
+
+int getBalanceFactor(Node* node) {
+    if (node == NULL) {
+        return 0;
+    }
+    return height(node->left) - height(node->right);
+}
+
+int max(int a, int b) {
+    return (a > b) ? a : b;
+}
+
+// --- AVL Tree Rotations --
+
+Node* rightRotate(Node* y) {
+    Node* x = y->left;
+    Node* T2 = x->right;
+
+    // Realiza a rotação
+    x->right = y;
+    y->left = T2;
+
+    // Atualiza as alturas
+    y->height = max(height(y->left), height(y->right)) + 1;
+    x->height = max(height(x->left), height(x->right)) + 1;
+
+    // Retorna o novo root
+    return x;
+}
+
+Node* leftRotate(Node* x) {
+    Node* y = x->right;
+    Node* T2 = y->left;
+
+    // Realiza a rotação
+    y->left = x;
+    x->right = T2;
+
+    // Atualiza as alturas
+    x->height = max(height(x->left), height(x->right)) + 1;
+    y->height = max(height(y->left), height(y->right)) + 1;
+
+    // Retorna o novo root
+    return y;
+}
+
+// --- ESSENTIAL AVL FUNCTIONS ---
+
+Node* insertAVL(Node* node, int data) {
+    // Passo 1: Realiza a inserção normal
+    if (node == NULL) {
+        return createNode(data);
+    }
+
+    if (data < node->data) {
+        node->left = insertAVL(node->left, data);
+    } else if (data > node->data) {
+        node->right = insertAVL(node->right, data);
+    } else {
+        // Duplicatas não são permitidas
+        return node;
+    }
+
+    // Passo 2: Atualiza a altura deste ancestral
+    node->height = 1 + max(height(node->left), height(node->right));
+
+    // Passo 3: Obtém o fator de balanceamento deste ancestral para verificar se ele está desequilibrado
+    int balance = getBalanceFactor(node);
+
+    // Se o nó ficar desequilibrado, então existem 4 casos
+
+    // Caso Esquerda-Esquerda
+    if (balance > 1 && data < node->left->data) {
+        return rightRotate(node);
+    }
+
+    // Caso Direita-Direita
+    if (balance < -1 && data > node->right->data) {
+        return leftRotate(node);
+    }
+
+    // Caso Esquerda-Direita
+    if (balance > 1 && data > node->left->data) {
+        node->left = leftRotate(node->left);
+        return rightRotate(node);
+    }
+
+    // Caso Direita-Esquerda
+    if (balance < -1 && data < node->right->data) {
+        node->right = rightRotate(node->right);
+        return leftRotate(node);
+    }
+
+    // Retorna o ponteiro do nó (não alterado)
+    return node;
+}
+
+void freeTree(Node* root) {
+    if (root != NULL) {
+        freeTree(root->left);
+        freeTree(root->right);
+        free(root);
+    }
 }
