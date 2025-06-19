@@ -107,13 +107,13 @@ int getBalanceFactor(Node* node);
  */
 int max(int a, int b);
 
-// Rotação Simples à Esquerda
-//     x               y
-//    / \             / \
-//   T1  y      ->   x   T3
-//      / \         / \
-//     T2  T3      T1  T2
 // === AVL Tree Rotations ===
+// Rotação Simples à Direita
+//       y           x
+//      / \         / \
+//     x   T3  ->  T1  y
+//    / \             / \
+//   T1  T2          T2  T3
 /**
  * @brief Performs a right rotation on the given Node.
  * @param y A pointer to the Node to be rotated.
@@ -121,12 +121,12 @@ int max(int a, int b);
  */
 Node* rightRotate(Node* y);
 
-// Rotação Simples à Direita
-//       y           x
-//      / \         / \
-//     x   T3  ->  T1  y
+// Rotação Simples à Esquerda
+//     x               y
 //    / \             / \
-//   T1  T2          T2  T3
+//   T1  y      ->   x   T3
+//      / \         / \
+//     T2  T3      T1  T2
 /**
  * @brief Performs a left rotation on the given Node.
  * @param x A pointer to the Node to be rotated.

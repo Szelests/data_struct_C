@@ -260,6 +260,80 @@ Node* insertAVL(Node* node, int data) {
     return node;
 }
 
+// Função de remoção para a árvore AVL
+Node* deleteNodeAVL(Node* root, int data)
+{
+    // 1. Executa a remoção padrão de uma ABB
+    if (root == NULL)
+        return root;
+
+    if (data < root->data)
+        root->left = deleteNodeAVL(root->left, data);
+    else if(data > root->data)
+        root->right = deleteNodeAVL(root->right, data);
+    else
+    {
+        // Nó com um filho ou nenhum filho
+        if( (root->left == NULL) || (root->right == NULL) )
+        {
+            Node *temp = root->left ? root->left : root->right;
+
+            // Nenhum filho
+            if (temp == NULL)
+            {
+                temp = root;
+                root = NULL;
+            }
+            else // Um filho
+             *root = *temp; // Copia o conteúdo do filho não-vazio
+            free(temp);
+        }
+        else
+        {
+            // Nó com dois filhos: pega o sucessor em ordem (menor da subárvore direita)
+            Node* temp = findMinValue(root->right);
+            root->data = temp->data;
+            root->right = deleteNodeAVL(root->right, temp->data);
+        }
+    }
+
+    // Se a árvore tinha apenas um nó, retorna
+    if (root == NULL)
+      return root;
+
+    // 2. Atualiza a altura do nó atual
+    root->height = 1 + max(height(root->left), height(root->right));
+
+    // 3. Calcula o fator de balanceamento
+    int balance = getBalance(root);
+
+    // Se o nó ficou desbalanceado, existem 4 casos:
+
+    // Caso Esquerda-Esquerda (LL)
+    if (balance > 1 && getBalance(root->left) >= 0)
+        return rightRotate(root);
+
+    // Caso Esquerda-Direita (LR)
+    if (balance > 1 && getBalance(root->left) < 0)
+    {
+        root->left =  leftRotate(root->left);
+        return rightRotate(root);
+    }
+
+    // Caso Direita-Direita (RR)
+    if (balance < -1 && getBalance(root->right) <= 0)
+        return leftRotate(root);
+
+    // Caso Direita-Esquerda (RL)
+    if (balance < -1 && getBalance(root->right) > 0)
+    {
+        root->right = rightRotate(root->right);
+        return leftRotate(root);
+    }
+
+    return root;
+}
+
 void freeTree(Node* root) {
     if (root != NULL) {
         freeTree(root->left);
